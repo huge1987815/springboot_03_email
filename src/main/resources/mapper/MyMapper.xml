@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huge.dao.EmpDao">
+   <!-- 删除员工信息 -->
+   <delete id="deleteEmpByEid">
+      delete from tb_emp where eid=#{eid};      
+   </delete>
+   <!-- 修改员工信息 -->
+   <update id="updateEmpByEid">
+      update tb_emp 
+      <set>
+        ename=#{ename},sex=#{sex},birthdate=#{birthdate},did=#{did}
+      </set>  
+      where eid=#{eid};
+   </update>
+
+   <!-- 根据eid查询员工信息 -->
+   <select id="findEmpByEid" resultType="emp">
+      select * from tb_emp where eid=#{eid};
+   </select>
+   
+   <!-- 添加员工信息 -->
+   <insert id="addEmp">
+      insert into tb_emp values(null,#{ename},#{sex},#{birthdate},#{did});
+   </insert>
+
+   <!-- 查询所有部门信息 -->
+   <select id="findAllDept" resultType="dept">
+      select * from tb_dept;
+   </select>
+
+   <!-- 查询所有员工信息 -->
+   <resultMap type="EmpVo" id="findAllEmpResultMap">
+      <!-- 员工信息 -->
+      <id property="eid" column="eid"/>
+      <result property="ename" column="ename"/>
+      <result property="sex" column="sex"/>
+      <result property="birthdate" column="birthdate"/>
+      <!-- 部门信息 -->
+      <association property="dept" javaType="dept">
+         <id property="did" column="did"/>
+         <result property="dname" column="dname"/>
+      </association>
+   </resultMap>
+   <select id="findAllEmp" resultMap="findAllEmpResultMap">
+        select * from tb_emp e left join tb_dept d
+		on e.did=d.did
+		<where>
+		   <if test="ename!=null and ename!=''">e.ename like concat('%',#{ename},'%')</if>
+		   <if test="begin!=null and begin!='' and end!='' and end!=null">e.birthdate between #{begin} and #{end}</if>
+		</where>
+   </select>
+</mapper>
